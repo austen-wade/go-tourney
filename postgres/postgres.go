@@ -3,6 +3,7 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 
 	_ "github.com/lib/pq"
 )
@@ -33,33 +34,23 @@ func ConnString(host string, port int, user string, password string, dbName stri
 }
 
 type User struct {
-	ID   int
 	Name string
+	ID   int
 	Age  int
 }
 
-func (d *Db) GetUsersByName(name string) []User {
-	stmt, err := d.Prepare("SELECT * FROM users WHERE name=$1")
-	if err != nil {
-		fmt.Println("GetUsersByName Preparation Err: ", err)
-	}
-
-	rows, err := stmt.Query(name)
-	if err != nil {
-		fmt.Println("GetUsersByName Query Err: ", err)
-	}
-
+func scanUserRows(rows *sql.Rows) []User {
 	var r User
 	users := []User{}
 
 	for rows.Next() {
-		err = rows.Scan(
+		err := rows.Scan(
 			&r.ID,
 			&r.Name,
 			&r.Age,
 		)
 		if err != nil {
-			fmt.Println("Error scanning rows: ", err)
+			fmt.Println("Error while scanning User rows: ", err)
 		}
 		users = append(users, r)
 	}
@@ -67,31 +58,52 @@ func (d *Db) GetUsersByName(name string) []User {
 	return users
 }
 
+func (d *Db) GetRows(sqlStmt string, operation string, query string) *sql.Rows {
+	stmt, err := d.Prepare(sqlStmt)
+	if err != nil {
+		fmt.Println(operation, " Preparation Error: ", err)
+	}
+
+	var rows *sql.Rows
+
+	switch {
+	case len(query) == 0:
+		rows, err = stmt.Query()
+	default:
+		rows, err = stmt.Query(query)
+	}
+	if err != nil {
+		fmt.Println(operation, " Query Error: ", err)
+	}
+
+	return rows
+}
+
+func (d *Db) GetUsers() []User {
+	rows := d.GetRows(
+		"SELECT * FROM users",
+		"GetUsers",
+		"",
+	)
+
+	return scanUserRows(rows)
+}
+
+func (d *Db) GetUsersByName(name string) []User {
+	rows := d.GetRows(
+		"SELECT * FROM users WHERE LOWER(name)=LOWER($1)",
+		"GetUsersByName",
+		name,
+	)
+
+	return scanUserRows(rows)
+}
+
 func (d *Db) GetUsersByID(id int) []User {
-	stmt, err := d.Prepare("SELECT * FROM users WHERE id=$1")
-	if err != nil {
-		fmt.Println("GetUsersByID Preparation Err: ", err)
-	}
+	rows := d.GetRows(
+		"SELECT * FROM users WHERE id=$1",
+		"GetUsersByID", strconv.Itoa(id),
+	)
 
-	rows, err := stmt.Query(id)
-	if err != nil {
-		fmt.Println("GetUsersByID Query Err: ", err)
-	}
-
-	var r User
-	users := []User{}
-
-	for rows.Next() {
-		err = rows.Scan(
-			&r.ID,
-			&r.Name,
-			&r.Age,
-		)
-		if err != nil {
-			fmt.Println("Error scanning rows: ", err)
-		}
-		users = append(users, r)
-	}
-
-	return users
+	return scanUserRows(rows)
 }

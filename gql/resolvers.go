@@ -10,15 +10,15 @@ type Resolver struct {
 }
 
 func (r *Resolver) UserResolver(p graphql.ResolveParams) (interface{}, error) {
-	name, ok := p.Args["name"].(string)
-	if ok {
-		users := r.db.GetUsersByName(name)
-		return users, nil
-	}
-
 	id, ok := p.Args["id"].(int)
 	if ok {
 		users := r.db.GetUsersByID(id)
+		return users, nil
+	}
+
+	name, ok := p.Args["name"].(string)
+	if ok {
+		users := r.db.GetUsersByName(name)
 		return users, nil
 	}
 
