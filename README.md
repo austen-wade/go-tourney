@@ -1,1 +1,1 @@
-Making a simple GraphQL with Postgresql server in Golang
+Making a simple GraphQL with Postgresql server in Golang for creating brackets
