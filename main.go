@@ -19,7 +19,7 @@ const (
 	port     = 5432
 	user     = "admin"
 	password = "admin"
-	dbname   = "go_graphql_db"
+	dbname   = "tourneys"
 )
 
 func main() {

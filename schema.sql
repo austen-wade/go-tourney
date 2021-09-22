@@ -1,7 +1,42 @@
-CREATE TABLE users (
-  id serial PRIMARY KEY,
-  name VARCHAR (50) NOT NULL,
-  age INT NOT NULL
+CREATE DATABASE tourneys;
+
+CREATE TABLE tourney_events (
+  event_id serial PRIMARY KEY,
+  name VARCHAR (255) NOT NULL,
+  date DATE NOT NULL,
+  game_name VARCHAR (255) NOT NULL,
+  number_entrants INT NOT NULL
 );
 
-INSERT INTO users VALUES (1,'Ada',11),(2,'Haskell',56),(3,'Rosina',58),(4,'Mariana',54),(5,'Herman',51),(6,'Liliane',34),(7,'Mattie',38),(8,'Agustina',45),(9,'Adolph',38),(10,'Forest',54),(11,'Alvis',16),(12,'Lucious',6),(13,'Eleanore',15),(14,'Javier',7),(15,'Kip',2),(16,'Gussie',11),(17,'Zackary',67),(18,'Monserrat',25),(19,'Kole',70),(20,'Wilfred',70),(21,'Carmelo',24),(22,'Dayana',2),(23,'Ismael',61),(24,'Garfield',58),(25,'Dolly',70),(26,'Laney',45),(27,'Derek',66),(28,'Jerad',4),(29,'Camila',49),(30,'Grant',66),(31,'Stanley',33),(32,'Rogelio',39),(33,'Torey',22),(34,'Emmie',27),(35,'Hardy',9),(36,'Rae',12),(37,'Zachariah',62),(38,'Tara',36),(39,'Alberta',56),(40,'Kaelyn',10),(41,'Danielle',54),(42,'Bria',54),(43,'Tanner',30),(44,'Milton',12),(45,'Omari',40),(46,'Lorenza',49),(47,'Floyd',42),(48,'Clement',37),(49,'Velma',26),(50,'Tiffany',43),(51,'Malika',5),(52,'Rahsaan',0),(53,'Emile',50),(54,'Columbus',0),(55,'Zella',2),(56,'Enrique',54),(57,'Kieran',12),(58,'Shyanne',49),(59,'Mathilde',41),(60,'Landen',57),(61,'Carolyne',48),(62,'Janie',21),(63,'Isobel',10),(64,'Tom',61),(65,'Graciela',14),(66,'Maryam',19),(67,'Hazel',42),(68,'Junior',4),(69,'Serena',27),(70,'Turner',1),(71,'Cade',50),(72,'Trevion',15),(73,'Nora',23),(74,'Danial',50),(75,'Soledad',10),(76,'Daisy',63),(77,'Kenyatta',51),(78,'Darrick',30),(79,'Ulices',44),(80,'Nicole',58),(81,'Keara',5),(82,'Cleve',62),(83,'Brisa',31),(84,'Elroy',70),(85,'Jacinto',19),(86,'Alia',2),(87,'Ebba',40),(88,'Elroy',23),(89,'Roma',61),(90,'Wendell',11),(91,'Juston',52),(92,'Roel',26),(93,'Isai',20),(94,'Osborne',62),(95,'Juston',68),(96,'Terence',19),(97,'Viviane',37),(98,'Alexandro',61),(99,'Kellie',44),(100,'Brendan',60);
+CREATE TABLE tourney_entrants (
+  entrant_id serial PRIMARY KEY,
+  entrant_tag VARCHAR (255) NOT NULL,
+  initial_seed INT NOT NULL,
+  final_placement INT
+);
+
+CREATE TABLE tourney_sets (
+  set_id serial PRIMARY KEY,
+  entrant1_id INT NOT NULL,
+  entrant2_id INT NOT NULL,
+  entrant1_result VARCHAR (255) NOT NULL,
+  entrant2_result VARCHAR (255) NOT NULL
+);
+
+insert into tourney_events (name, date, game_name, number_entrants) values ('Best in Class', CURRENT_DATE, 'Horse', 16);
+insert into tourney_entrants (entrant_tag, initial_seed) values ('Damaris', 1);
+insert into tourney_entrants (entrant_tag, initial_seed) values ('Gray', 2);
+insert into tourney_entrants (entrant_tag, initial_seed) values ('Manon', 3);
+insert into tourney_entrants (entrant_tag, initial_seed) values ('Juliana', 4);
+insert into tourney_entrants (entrant_tag, initial_seed) values ('Robinet', 5);
+insert into tourney_entrants (entrant_tag, initial_seed) values ('Beale', 6);
+insert into tourney_entrants (entrant_tag, initial_seed) values ('Ashlan', 7);
+insert into tourney_entrants (entrant_tag, initial_seed) values ('Uriah', 8);
+insert into tourney_entrants (entrant_tag, initial_seed) values ('Brynn', 9);
+insert into tourney_entrants (entrant_tag, initial_seed) values ('Willi', 10);
+insert into tourney_entrants (entrant_tag, initial_seed) values ('Meghan', 11);
+insert into tourney_entrants (entrant_tag, initial_seed) values ('Lilllie', 12);
+insert into tourney_entrants (entrant_tag, initial_seed) values ('Gaston', 13);
+insert into tourney_entrants (entrant_tag, initial_seed) values ('Payton', 14);
+insert into tourney_entrants (entrant_tag, initial_seed) values ('Tore', 15);
+insert into tourney_entrants (entrant_tag, initial_seed) values ('Jessica', 16);

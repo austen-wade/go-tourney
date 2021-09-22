@@ -33,29 +33,24 @@ func ConnString(host string, port int, user string, password string, dbName stri
 	)
 }
 
-type User struct {
-	Name string
-	ID   int
-	Age  int
-}
-
-func scanUserRows(rows *sql.Rows) []User {
-	var r User
-	users := []User{}
+func scanEventRows(rows *sql.Rows) []Event {
+	var event Event
+	events := []Event{}
 
 	for rows.Next() {
 		err := rows.Scan(
-			&r.ID,
-			&r.Name,
-			&r.Age,
+			&event.Name,
+			&event.Date,
+			&event.GameName,
+			&event.NumberEntrants,
 		)
 		if err != nil {
-			fmt.Println("Error while scanning User rows: ", err)
+			fmt.Println("Error while scanning Event rows: ", err)
 		}
-		users = append(users, r)
+		events = append(events, event)
 	}
 
-	return users
+	return events
 }
 
 func (d *Db) GetRows(sqlStmt string, operation string, query string) *sql.Rows {
@@ -66,12 +61,7 @@ func (d *Db) GetRows(sqlStmt string, operation string, query string) *sql.Rows {
 
 	var rows *sql.Rows
 
-	switch {
-	case len(query) == 0:
-		rows, err = stmt.Query()
-	default:
-		rows, err = stmt.Query(query)
-	}
+	rows, err = stmt.Query(query)
 	if err != nil {
 		fmt.Println(operation, " Query Error: ", err)
 	}
@@ -79,31 +69,106 @@ func (d *Db) GetRows(sqlStmt string, operation string, query string) *sql.Rows {
 	return rows
 }
 
-func (d *Db) GetUsers() []User {
+func (d *Db) GetEventsByID(id int) []Event {
 	rows := d.GetRows(
-		"SELECT * FROM users",
-		"GetUsers",
-		"",
+		"SELECT * FROM tourney_events WHERE event_id=$1",
+		"GetEventsByID", strconv.Itoa(id),
 	)
 
-	return scanUserRows(rows)
+	var event Event
+	events := []Event{}
+
+	for rows.Next() {
+		err := rows.Scan(
+			&event.EventID,
+			&event.Name,
+			&event.Date,
+			&event.GameName,
+			&event.NumberEntrants,
+		)
+		if err != nil {
+			fmt.Println("Error while scanning Event rows: ", err)
+		}
+		events = append(events, event)
+	}
+
+	return events
 }
 
-func (d *Db) GetUsersByName(name string) []User {
+func (d *Db) GetEntrantsByID(id int) []Entrant {
 	rows := d.GetRows(
-		"SELECT * FROM users WHERE LOWER(name)=LOWER($1)",
-		"GetUsersByName",
-		name,
+		"SELECT * FROM tourney_entrants WHERE entrant_id=$1",
+		"GetEntrantsByID", strconv.Itoa(id),
 	)
 
-	return scanUserRows(rows)
+	var entrant Entrant
+	entrants := []Entrant{}
+
+	for rows.Next() {
+		err := rows.Scan(
+			&entrant.EntrantID,
+			&entrant.EntrantTag,
+			&entrant.InitialSeed,
+			&entrant.FinalPlacement,
+		)
+		if err != nil {
+			fmt.Println("Error while scanning Entrant rows: ", err)
+		}
+		entrants = append(entrants, entrant)
+	}
+
+	return entrants
 }
 
-func (d *Db) GetUsersByID(id int) []User {
+func (d *Db) GetSetsByID(id int) []Set {
 	rows := d.GetRows(
-		"SELECT * FROM users WHERE id=$1",
-		"GetUsersByID", strconv.Itoa(id),
+		"SELECT * FROM tourney_sets WHERE set_id=$1",
+		"GetSetsByID", strconv.Itoa(id),
 	)
 
-	return scanUserRows(rows)
+	var set Set
+	sets := []Set{}
+
+	for rows.Next() {
+		err := rows.Scan(
+			&set.SetID,
+			&set.Entrant1ID,
+			&set.Entrant2ID,
+			&set.Entrant1Result,
+			&set.Entrant2Result,
+		)
+		if err != nil {
+			fmt.Println("Error while scanning Set rows: ", err)
+		}
+		sets = append(sets, set)
+	}
+
+	return sets
+}
+
+func (d *Db) SaveSet(setParams SetParams) int {
+	stmt := `
+		INSERT INTO tourney_sets (entrant1_id, entrant2_id, entrant1_result, entrant2_result)
+		WHERE ($1, $2, $3, $4)
+		RETURNING entrant_id`
+	var entrantID int
+	err := d.QueryRow(
+		stmt,
+		setParams.Entrant1ID,
+		setParams.Entrant2ID,
+		setParams.Entrant1Result,
+		setParams.Entrant2Result,
+	).Scan(&entrantID)
+	if err != nil {
+		fmt.Println("Error while inserting Set record: ", err)
+	}
+
+	return entrantID
+}
+
+type SetParams struct {
+	Entrant1ID     int    `json:"entrant1_id"`
+	Entrant2ID     int    `json:"entrant2_id"`
+	Entrant1Result string `json:"entrant1_result"`
+	Entrant2Result string `json:"entrant2_result"`
 }
