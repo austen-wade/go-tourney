@@ -14,6 +14,14 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "admin"
+	password = "admin"
+	dbname   = "go_graphql_db"
+)
+
 func main() {
 	router, db := initializeAPI()
 	defer db.Close()
@@ -25,7 +33,7 @@ func initializeAPI() (*chi.Mux, *postgres.Db) {
 	router := chi.NewRouter()
 
 	db, err := postgres.New(
-		postgres.ConnString("localhost", 5432, "austen", "go_graphql_db"),
+		postgres.ConnString(host, port, user, password, dbname),
 	)
 	if err != nil {
 		log.Fatal(err)

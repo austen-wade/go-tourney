@@ -16,5 +16,11 @@ func (r *Resolver) UserResolver(p graphql.ResolveParams) (interface{}, error) {
 		return users, nil
 	}
 
+	id, ok := p.Args["id"].(int)
+	if ok {
+		users := r.db.GetUsersByID(id)
+		return users, nil
+	}
+
 	return nil, nil
 }

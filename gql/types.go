@@ -15,12 +15,6 @@ var User = graphql.NewObject(
 			"age": &graphql.Field{
 				Type: graphql.String,
 			},
-			"profession": &graphql.Field{
-				Type: graphql.String,
-			},
-			"friendly": &graphql.Field{
-				Type: graphql.Boolean,
-			},
 		},
 	},
 )
